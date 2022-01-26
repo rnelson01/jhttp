@@ -17,6 +17,15 @@ template:
             execution:
                 steps:
                     - step:
+                          type: RestoreCacheGCS
+                          name: Restore Cache
+                          identifier: Restore_Cache
+                          spec:
+                              connectorRef: account.GCP
+                              bucket: <+pipeline.name>
+                              key: <+pipeline.name>
+                              archiveFormat: Tar
+                    - step:
                           type: Run
                           name: maven-build
                           identifier: mavenbuild

@@ -1,0 +1,24 @@
+template:
+    name: java maven
+    identifier: java_maven
+    versionLabel: Version1
+    type: Stage
+    projectIdentifier: tempwf
+    orgIdentifier: default
+    spec:
+        type: CI
+        spec:
+            cloneCodebase: true
+            infrastructure:
+                type: KubernetesDirect
+                spec:
+                    connectorRef: account.gcpsalescidemo
+                    namespace: build
+            execution:
+                steps:
+                    - step:
+                          name: build
+                          identifier: build
+                          template:
+                              templateRef: javamaven
+                              versionLabel: Version1

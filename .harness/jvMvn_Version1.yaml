@@ -67,6 +67,10 @@ template:
                               imageName: <+pipeline.name>
                               tags:
                                   - <+pipeline.sequenceId>
+                          when:
+                              stageStatus: Success
+                              condition: <+stage.variables.push> == "T"
+                          failureStrategies: []
         variables:
             - name: Cache
               type: String

@@ -23,8 +23,12 @@ template:
                           spec:
                               connectorRef: account.GCP
                               bucket: <+pipeline.name>
-                              key: <+pipeline.name>
+                              key: <+pipeline.name>-{{ checksum "pom.xml" }}
                               archiveFormat: Tar
+                          when:
+                              stageStatus: Success
+                              condition: <+stage.variables.cache> == "T"
+                          failureStrategies: []
                     - step:
                           type: Run
                           name: maven-build
@@ -37,6 +41,21 @@ template:
                                   limits:
                                       memory: 4G
                                       cpu: "1"
+                    - step:
+                          type: SaveCacheGCS
+                          name: save cache
+                          identifier: save_cache
+                          spec:
+                              connectorRef: account.GCP
+                              bucket: <+Pipeline.name>
+                              key: <+pipeline.name>-{{ checksum "pom.xml" }}
+                              sourcePaths:
+                                  - /root/.m2/repository
+                              archiveFormat: Tar
+                          when:
+                              stageStatus: Success
+                              condition: <+stage.variables.cache> == "T"
+                          failureStrategies: []
         variables:
             - name: Cache
               type: String

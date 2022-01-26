@@ -1,0 +1,13 @@
+template:
+    name: java-maven
+    identifier: javamaven
+    versionLabel: Version1
+    type: Step
+    projectIdentifier: tempwf
+    orgIdentifier: default
+    spec:
+        type: Run
+        spec:
+            connectorRef: account.Harness_Docker_Connector
+            image: maven:3.5.2-jdk-8-alpine
+            command: mvn clean package -DskipTests

@@ -30,5 +30,5 @@ pipeline:
                                 identifier: build
                                 spec:
                                     connectorRef: account.Harness_Docker_Connector
-                                    image: maven
-                                    command: echo "hello"
+                                    image: maven:3.5.2-jdk-8-alpine
+                                    command: mvn clean package -DskipTests

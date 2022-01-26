@@ -48,6 +48,15 @@ pipeline:
                   execution:
                       steps:
                           - step:
+                                type: RestoreCacheGCS
+                                spec:
+                                    connectorRef: account.SalesGCP
+                                    bucket: <+input>
+                                    key: <+input>
+                                    archiveFormat: Tar
+                                name: restore cache
+                                identifier: restore_cache
+                          - step:
                                 type: Run
                                 name: maven-build
                                 identifier: mavenbuild

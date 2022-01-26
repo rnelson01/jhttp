@@ -71,6 +71,8 @@ template:
                               stageStatus: Success
                               condition: <+stage.variables.PushGCR> == "T"
                           failureStrategies: []
+            sharedPaths:
+                - /root/.m2/repository
         variables:
             - name: Cache
               type: String

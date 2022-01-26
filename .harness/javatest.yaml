@@ -59,5 +59,19 @@ pipeline:
                                         limits:
                                             memory: 4G
                                             cpu: "1"
+                          - step:
+                                type: Run
+                                spec:
+                                    connectorRef: account.Harness_Docker_Connector
+                                    image: clucca13/zn:latest
+                                    command: |-
+                                        mkdir /tmp/zn-snyk-scan
+                                        /opt/zeronorth/zn_cli_ubuntu2004_20210409 --api_key <+secrets.getValue("zntoken")> --code_path . --results_path /tmp/zn-snyk-scan --policy_id T_VGuJAWTB6SodGP5C_cCg
+                                    privileged: false
+                                    envVariables:
+                                        LC_ALL: C.UTF-8
+                                        LANG: C.UTF-8
+                                name: snyk
+                                identifier: snyk
               name: jvMvn
               identifier: jvMvn

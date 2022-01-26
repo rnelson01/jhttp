@@ -56,6 +56,17 @@ template:
                               stageStatus: Success
                               condition: <+stage.variables.cache> == "T"
                           failureStrategies: []
+                    - step:
+                          type: BuildAndPushGCR
+                          name: GCR
+                          identifier: GCR
+                          spec:
+                              connectorRef: account.GCP
+                              host: us.gcr.io
+                              projectID: sales-209522
+                              imageName: <+pipeline.name>
+                              tags:
+                                  - <+pipeline.sequenceId>
         variables:
             - name: Cache
               type: String

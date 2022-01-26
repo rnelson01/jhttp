@@ -69,7 +69,7 @@ template:
                                   - <+pipeline.sequenceId>
                           when:
                               stageStatus: Success
-                              condition: <+stage.variables.push> == "T"
+                              condition: <+stage.variables.PushGCR> == "T"
                           failureStrategies: []
         variables:
             - name: Cache

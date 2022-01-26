@@ -36,3 +36,28 @@ pipeline:
                                             cpu: "1"
               name: build2
               identifier: build2
+        - stage:
+              type: CI
+              spec:
+                  cloneCodebase: true
+                  infrastructure:
+                      type: KubernetesDirect
+                      spec:
+                          connectorRef: account.gcpsalescidemo
+                          namespace: build
+                  execution:
+                      steps:
+                          - step:
+                                type: Run
+                                name: maven-build
+                                identifier: mavenbuild
+                                spec:
+                                    connectorRef: account.Harness_Docker_Connector
+                                    image: maven:3.5.2-jdk-8-alpine
+                                    command: mvn clean package -DskipTests
+                                    resources:
+                                        limits:
+                                            memory: 4G
+                                            cpu: "1"
+              name: jvMvn
+              identifier: jvMvn

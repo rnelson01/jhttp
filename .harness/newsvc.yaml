@@ -32,8 +32,7 @@ pipeline:
                                     key: <+pipeline.name>--{{ checksum "pom.xml" }}
                                     archiveFormat: Tar
                                 when:
-                                    stageStatus: Success
-                                    condition: "FALSE"
+                                    stageStatus: Failure
                                 failureStrategies: []
                           - step:
                                 type: Run
@@ -59,8 +58,7 @@ pipeline:
                                         - /root/.m2/repository
                                     archiveFormat: Tar
                                 when:
-                                    stageStatus: Success
-                                    condition: "FALSE"
+                                    stageStatus: Failure
                                 failureStrategies: []
                           - step:
                                 type: BuildAndPushGCR

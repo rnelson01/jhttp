@@ -59,7 +59,7 @@ pipeline:
                                         - /root/.m2/repository
                                     archiveFormat: Tar
                                 when:
-                                    stageStatus: Failure
+                                    stageStatus: Success
                                     condition: "FALSE"
                                 failureStrategies: []
                           - step:

@@ -1,0 +1,45 @@
+inputSet:
+  identifier: "vars"
+  pipeline:
+    identifier: "newprj"
+    properties:
+      ci:
+        codebase:
+          build:
+            type: "branch"
+            spec:
+              branch: "main"
+    stages:
+    - stage:
+        identifier: "build"
+        type: "CI"
+        spec:
+          execution:
+            steps:
+            - step:
+                identifier: "restore_maven_cache"
+                type: "RestoreCacheGCS"
+                spec:
+                  bucket: "main"
+    - stage:
+        identifier: "deploy"
+        type: "Deployment"
+        spec:
+          infrastructure:
+            environmentRef: ""
+    - stage:
+        identifier: "build2"
+        template:
+          templateInputs:
+            type: "CI"
+            spec:
+              execution:
+                steps:
+                - step:
+                    identifier: "restore_maven_cache"
+                    type: "RestoreCacheGCS"
+                    spec:
+                      bucket: "enc"
+  name: "vars"
+  orgIdentifier: "default"
+  projectIdentifier: "tempwf"

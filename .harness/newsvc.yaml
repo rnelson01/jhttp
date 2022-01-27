@@ -31,6 +31,10 @@ pipeline:
                                     bucket: <+input>
                                     key: <+pipeline.name>--{{ checksum "pom.xml" }}
                                     archiveFormat: Tar
+                                when:
+                                    stageStatus: Success
+                                    condition: "FALSE"
+                                failureStrategies: []
                           - step:
                                 type: Run
                                 name: maven build
@@ -54,6 +58,10 @@ pipeline:
                                     sourcePaths:
                                         - /root/.m2/repository
                                     archiveFormat: Tar
+                                when:
+                                    stageStatus: Failure
+                                    condition: "FALSE"
+                                failureStrategies: []
                           - step:
                                 type: BuildAndPushGCR
                                 name: Push GCR

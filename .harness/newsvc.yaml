@@ -75,3 +75,77 @@ pipeline:
                       - /root/.m2/repository
               name: cpy build
               identifier: cpy_build
+        - stage:
+              type: CI
+              spec:
+                  cloneCodebase: true
+                  infrastructure:
+                      type: KubernetesDirect
+                      spec:
+                          connectorRef: account.gcpsalescidemo
+                          namespace: build
+                  execution:
+                      steps:
+                          - step:
+                                type: RestoreCacheGCS
+                                name: restore maven cache
+                                identifier: restore_maven_cache
+                                spec:
+                                    connectorRef: account.GCP
+                                    bucket: <+input>
+                                    key: <+pipeline.name>--{{ checksum "pom.xml" }}
+                                    archiveFormat: Tar
+                                when:
+                                    stageStatus: Failure
+                                failureStrategies: []
+                          - step:
+                                type: Run
+                                name: maven build
+                                identifier: maven_build
+                                spec:
+                                    connectorRef: account.Harness_Docker_Connector
+                                    image: maven:3.5.2-jdk-8-alpine
+                                    command: mvn clean package -DskipTests
+                                    resources:
+                                        limits:
+                                            memory: 2G
+                                            cpu: "1"
+                          - step:
+                                type: SaveCacheGCS
+                                name: save maven cache
+                                identifier: save_maven_cache
+                                spec:
+                                    connectorRef: account.GCP
+                                    bucket: mvn clean package -DskipTests
+                                    key: <+pipeline.name>-{{ checksum "pom.xml" }}
+                                    sourcePaths:
+                                        - /root/.m2/repository
+                                    archiveFormat: Tar
+                                when:
+                                    stageStatus: Failure
+                                failureStrategies: []
+                          - step:
+                                type: BuildAndPushGCR
+                                name: Push GCR
+                                identifier: Push_GCR
+                                spec:
+                                    connectorRef: account.GCP
+                                    host: us.gcr.io
+                                    projectID: sales-209522
+                                    imageName: <+pipeline.name>
+                                    tags:
+                                        - <+pipeline.sequenceId>
+                  sharedPaths:
+                      - /root/.m2/repository
+                      - /var/run
+                      - /var/lib/docker
+                  serviceDependencies:
+                      - identifier: DIND
+                        name: DIND
+                        type: Service
+                        spec:
+                            connectorRef: account.Harness_Docker_Connector
+                            image: docker:dind
+                            privileged: true
+              name: blk3e
+              identifier: blk3e

@@ -1,0 +1,95 @@
+pipeline:
+    name: newprj
+    identifier: newprj
+    projectIdentifier: tempwf
+    orgIdentifier: default
+    tags: {}
+    properties:
+        ci:
+            codebase:
+                connectorRef: account.rngit
+                repoName: jhttp
+                build: <+input>
+    stages:
+        - stage:
+              type: CI
+              spec:
+                  cloneCodebase: true
+                  infrastructure:
+                      type: KubernetesDirect
+                      spec:
+                          connectorRef: account.gcpsalescidemo
+                          namespace: build
+                  execution:
+                      steps:
+                          - step:
+                                type: RestoreCacheGCS
+                                name: restore maven cache
+                                identifier: restore_maven_cache
+                                spec:
+                                    connectorRef: account.GCP
+                                    bucket: <+input>
+                                    key: <+pipeline.name>--{{ checksum "pom.xml" }}
+                                    archiveFormat: Tar
+                          - step:
+                                type: Run
+                                name: maven build
+                                identifier: maven_build
+                                spec:
+                                    connectorRef: account.Harness_Docker_Connector
+                                    image: maven:3.5.2-jdk-8-alpine
+                                    command: mvn clean package -DskipTests
+                                    resources:
+                                        limits:
+                                            memory: 2G
+                                            cpu: "1"
+                          - step:
+                                type: SaveCacheGCS
+                                name: save maven cache
+                                identifier: save_maven_cache
+                                spec:
+                                    connectorRef: account.GCP
+                                    bucket: mvn clean package -DskipTests
+                                    key: <+pipeline.name>-{{ checksum "pom.xml" }}
+                                    sourcePaths:
+                                        - /root/.m2/repository
+                                    archiveFormat: Tar
+                          - step:
+                                type: BuildAndPushGCR
+                                name: Push GCR
+                                identifier: Push_GCR
+                                spec:
+                                    connectorRef: account.GCP
+                                    host: us.gcr.io
+                                    projectID: sales-209522
+                                    imageName: <+pipeline.name>
+                                    tags:
+                                        - <+pipeline.sequenceId>
+                          - step:
+                                type: Run
+                                spec:
+                                    connectorRef: account.Harness_Docker_Connector
+                                    image: clucca13/zn:latest
+                                    command: |-
+                                        mkdir /tmp/zn-snyk-scan
+                                        /opt/zeronorth/zn_cli_ubuntu2004_20210409 --api_key <+secrets.getValue("zntoken")> --code_path . --results_path /tmp/zn-snyk-scan --policy_id T_VGuJAWTB6SodGP5C_cCg
+                                    privileged: false
+                                    envVariables:
+                                        LC_ALL: C.UTF-8
+                                        LANG: C.UTF-8
+                                name: snyk
+                                identifier: snyk
+                  sharedPaths:
+                      - /root/.m2/repository
+                      - /var/run
+                      - /var/lib/docker
+                  serviceDependencies:
+                      - identifier: DIND
+                        name: DIND
+                        type: Service
+                        spec:
+                            connectorRef: account.Harness_Docker_Connector
+                            image: docker:dind
+                            privileged: true
+              name: build
+              identifier: build

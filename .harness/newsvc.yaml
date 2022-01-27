@@ -33,6 +33,7 @@ pipeline:
                                     archiveFormat: Tar
                                 when:
                                     stageStatus: Failure
+                                    condition: "False"
                                 failureStrategies: []
                           - step:
                                 type: Run
@@ -59,6 +60,7 @@ pipeline:
                                     archiveFormat: Tar
                                 when:
                                     stageStatus: Failure
+                                    condition: "False"
                                 failureStrategies: []
                           - step:
                                 type: BuildAndPushGCR

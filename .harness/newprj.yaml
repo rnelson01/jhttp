@@ -137,3 +137,19 @@ pipeline:
                             type: StageRollback
               name: deploy
               identifier: deploy
+        - stage:
+              name: build2
+              identifier: build2
+              template:
+                  templateRef: account.JavaMaven
+                  versionLabel: Version1
+                  templateInputs:
+                      type: CI
+                      spec:
+                          execution:
+                              steps:
+                                  - step:
+                                        identifier: restore_maven_cache
+                                        type: RestoreCacheGCS
+                                        spec:
+                                            bucket: <+input>
